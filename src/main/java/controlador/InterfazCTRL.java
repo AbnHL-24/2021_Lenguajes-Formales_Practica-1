@@ -21,6 +21,8 @@ public class InterfazCTRL implements ActionListener {
     //Objeto para generar la tabla
     private GeneradorTabla<Token> generadorTabla;
 
+    int linea = 0;
+
     public InterfazCTRL(InterfazGUI interfazGui) {
         this.interfazGui = interfazGui;
 
@@ -50,6 +52,7 @@ public class InterfazCTRL implements ActionListener {
             List<String> lineas = separadorLineasCTRL.separarLineas();
             //para cada linea usaremos un analizador
             for (String s : lineas) {
+                linea++;
                 AnalizadorAFD analizador = new AnalizadorAFD(s);
                 analizador.analizar();
                 //para cada pareja de tokens y sus tipos dentro del analizador creamos un objeto ToKen
@@ -58,7 +61,7 @@ public class InterfazCTRL implements ActionListener {
                             .tocken(analizador.getTockens().get(i))
                             .tipoToken(analizador.getTipoTockens().get(i).name())
                             .indice(analizador.getIndices().get(i))
-                            .fila(i+1)
+                            .fila(linea)
                             .build();
                     //agregamos el Token creado a la Lista de Tokens que se agregaran a la tabla.
                     tokenList.add(token);
