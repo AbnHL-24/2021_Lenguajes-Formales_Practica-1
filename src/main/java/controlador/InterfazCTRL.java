@@ -1,5 +1,6 @@
 package controlador;
 
+import modelo.afd.AnalizadorAFD;
 import modelo.procesar.Analizador;
 import modelo.tablas.GeneradorTabla;
 import modelo.tokens.Token;
@@ -16,7 +17,7 @@ public class InterfazCTRL implements ActionListener {
     //Lista con los tokens a ingresar en la tabla
     private List<Token> tokenList = new ArrayList<>();
     //Titulos de la tabla
-    private final String[] TITULOS = {"Token", "Tipo de Token"};
+    private final String[] TITULOS = {"Token", "Tipo de Token", "Fila", "Columna"};
     //Objeto para generar la tabla
     private GeneradorTabla<Token> generadorTabla;
 
@@ -49,13 +50,16 @@ public class InterfazCTRL implements ActionListener {
             List<String> lineas = separadorLineasCTRL.separarLineas();
             //para cada linea usaremos un analizador
             for (String s : lineas) {
-                Analizador analizador = new Analizador(s);
+                AnalizadorAFD analizador = new AnalizadorAFD(s);
                 analizador.analizar();
                 //para cada pareja de tokens y sus tipos dentro del analizador creamos un objeto ToKen
                 for (int i = 0; i < analizador.getTockens().size(); i++) {
                     Token token = Token.builder()
                             .tocken(analizador.getTockens().get(i))
-                            .tipoToken(analizador.getTipoTockens().get(i).name()).build();
+                            .tipoToken(analizador.getTipoTockens().get(i).name())
+                            .indice(analizador.getIndices().get(i))
+                            .fila(i+1)
+                            .build();
                     //agregamos el Token creado a la Lista de Tokens que se agregaran a la tabla.
                     tokenList.add(token);
                 }
