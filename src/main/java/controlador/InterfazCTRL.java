@@ -3,6 +3,7 @@ package controlador;
 import modelo.procesar.Analizador;
 import modelo.tablas.GeneradorTabla;
 import modelo.tokens.Token;
+import vista.CargarRutaArchivoGUI;
 import vista.InterfazGUI;
 
 import java.awt.event.ActionEvent;
@@ -24,6 +25,8 @@ public class InterfazCTRL implements ActionListener {
 
         interfazGui.getBtnLimpiar().addActionListener(this);
         interfazGui.getBtnProcesar().addActionListener(this);
+        interfazGui.getBtnCargar().addActionListener(this);
+        interfazGui.getBtnGuardar().addActionListener(this);
 
         //Creamos un objeto tabla y le asignamos la tabla a llenar y sus titulos
         generadorTabla = new GeneradorTabla<>(this.interfazGui.getTblTabla(), TITULOS);
@@ -64,6 +67,13 @@ public class InterfazCTRL implements ActionListener {
             generadorTabla.limpiar();
             //limpia la lista de Tokens
             tokenList.clear();
+        } else if (e.getSource() == interfazGui.getBtnCargar()) {
+            CargarRutaArchivoGUI cargarRutaArchivoGUI = new CargarRutaArchivoGUI();
+            CargarRutaArchivoCTRL cargarRutaArchivoCTRL = new CargarRutaArchivoCTRL(cargarRutaArchivoGUI, interfazGui);
+            cargarRutaArchivoCTRL.iniciar();
+            /*if (cargarRutaArchivoCTRL.getTexto() != null) {
+                interfazGui.getTxaTexto().setText(cargarRutaArchivoCTRL.getTexto());
+            }*/
         }
     }
 }
