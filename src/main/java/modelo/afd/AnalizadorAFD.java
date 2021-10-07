@@ -63,7 +63,7 @@ public class AnalizadorAFD {
                            token += String.valueOf(c);
                            tipoTocken = Tockens.PUNTUACION;
                        } else if (Character.isSpaceChar(c)) {
-                           estado = Estados.S5;
+                           estado = Estados.S0;
                            tipoTocken = Tockens.NULL;
                        }
                    }
@@ -93,7 +93,7 @@ public class AnalizadorAFD {
                            estado = Estados.S2;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.NUMERO;
-                       } else if (".".equals(c)) {
+                       } else if (".".equals(String.valueOf(c))) {
                            estado = Estados.S3;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.DECIMAL;
