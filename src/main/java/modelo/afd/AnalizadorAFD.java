@@ -70,6 +70,16 @@ public class AnalizadorAFD {
                            estado = Estados.S5;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.COMENTARIODEUNALINEA;
+                       } else if (c.equals('=')) {
+                           estado = Estados.S0;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.ASIGNACION;
+                           tipoTockens.add(tipoTocken);
+                           tipoTocken = Tockens.NULL;
+                           tockens.add(token);
+                           token = "";
+                           filas.add(fila);
+                           columnas.add(columna);
                        }
                         // y tambien los signos de asignacion
                        else if (Character.isSpaceChar(c) | Character.isWhitespace(c)) {

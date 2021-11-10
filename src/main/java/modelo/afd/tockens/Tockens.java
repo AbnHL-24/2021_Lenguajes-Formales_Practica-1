@@ -8,6 +8,7 @@ public enum Tockens {
     COMENTARIODEUNALINEA,
     CARACTERESESPECIALES,
     ERROR,
+    ASIGNACION,
     NULL,
 
     //Candidatos a desaparecer

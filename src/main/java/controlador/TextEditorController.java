@@ -3,6 +3,7 @@ package controlador;
 
 import modelo.afd.AnalizadorAFD;
 import modelo.tablas.GeneradorTabla;
+import modelo.tokens.TiposDeTokens;
 import modelo.tokens.Token;
 import vista.TextEditorView;
 
@@ -41,6 +42,7 @@ public class TextEditorController extends WindowAdapter implements ActionListene
     private final TextEditorView textEditorV;
     private boolean hasChanges = false;
     private String path = "";
+    boolean erroresLexico = false;
 
     private List<Token> tokenList = new ArrayList<>();
     //Titulos de la tabla
@@ -63,6 +65,7 @@ public class TextEditorController extends WindowAdapter implements ActionListene
         this.textEditorV.getItmPegar().addActionListener(this);
 
         this.textEditorV.getItmManual().addActionListener(this);
+        this.textEditorV.getTxaTexto().addCaretListener(this);
 
         this.textEditorV.addWindowListener(this);
 
@@ -141,7 +144,24 @@ public class TextEditorController extends WindowAdapter implements ActionListene
                 }
             }*/
             //Generamos la tabla a partir de la lista de Tokens
-            generadorTabla.generar(tokenList);
+
+            for (Token t : tokenList) {
+                if (t.getTipoToken().equals(TiposDeTokens.ERROR.name())) {
+                    erroresLexico = true;
+                    break;
+                }
+            }
+            if (erroresLexico) {
+                List<Token> tokenListImp = new ArrayList<>();
+                for (Token t : tokenList) {
+                    if (t.getTipoToken().equals(TiposDeTokens.ERROR.name())) {
+                        tokenListImp.add(t);
+                    }
+                }
+                generadorTabla.generar(tokenListImp);
+            } else {
+                generadorTabla.generar(tokenList);
+            }
         } else if (e.getSource() == textEditorV.getBtnLimpiar()) {
             textEditorV.getTxaTexto().setText("");
             generadorTabla.limpiar();
