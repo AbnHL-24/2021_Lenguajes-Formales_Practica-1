@@ -62,11 +62,14 @@ public class AnalizadorAFD {
                            token += String.valueOf(c);
                            tipoTocken = Tockens.LITERAL;
                        } else if ( c.equals('\n')) {
-                           System.out.println(c);
                            estado = Estados.S0;
                            tipoTocken = Tockens.NULL;
                            fila++;
                            columna = 0;
+                       } else if (c.equals('/')) {
+                           estado = Estados.S5;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.COMENTARIODEUNALINEA;
                        }
                         // y tambien los signos de asignacion
                        else if (Character.isSpaceChar(c) | Character.isWhitespace(c)) {
@@ -228,9 +231,39 @@ public class AnalizadorAFD {
                            tipoTocken = Tockens.LITERAL;
                        }
                    }
-                   case S5 -> {
-                       //Es espacio
-                       //El VAR dice que aca no ha pasado nada, que se siga jugando.
+                   case S5 -> { //comentarios
+                       if (c.equals('/')) { // verifica el segundo / y manda al cuerpo de comentario
+                           estado = Estados.S6;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.COMENTARIODEUNALINEA;
+                       } else { // error
+                           estado = Estados.ERROR;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.ERROR;
+                       }
+                   }
+                   case S6 -> { //cuerpo de los comentarios
+                       if ( c.equals('\n')) {
+                           tipoTocken = Tockens.COMENTARIODEUNALINEA;
+                           estado = Estados.S0;
+                           token += String.valueOf(c);
+                           tipoTockens.add(tipoTocken);
+                           tipoTocken = Tockens.NULL;
+                           tockens.add(token);
+                           token = "";
+                           filas.add(fila);
+                           fila++;
+                           columnas.add(columna);
+                           columna = 0;
+                       } else if (c.equals('\t')) {
+                           estado = Estados.S6;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.COMENTARIODEUNALINEA;
+                       } else { // agrego el resto de lo que viene a los comentarios
+                           estado = Estados.S6;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.COMENTARIODEUNALINEA;
+                       }
                    }
                    case ERROR -> {
                        if (c.equals('\n')) {
