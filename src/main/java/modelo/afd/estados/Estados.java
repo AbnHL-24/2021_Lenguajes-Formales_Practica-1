@@ -7,5 +7,6 @@ public enum Estados {
     S3,
     S4,
     S5,
+    S6,
     ERROR
 }

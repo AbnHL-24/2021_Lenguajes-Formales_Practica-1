@@ -21,7 +21,6 @@ public class InterfazCTRL implements ActionListener {
     //Objeto para generar la tabla
     private GeneradorTabla<Token> generadorTabla;
 
-    int linea = 0;
 
     public InterfazCTRL(InterfazGUI interfazGui) {
         this.interfazGui = interfazGui;
@@ -43,6 +42,7 @@ public class InterfazCTRL implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        int linea = 0;
         if (e.getSource() == interfazGui.getBtnProcesar()) {
             //limpia la lista de Tokens
             tokenList.clear();
@@ -51,6 +51,22 @@ public class InterfazCTRL implements ActionListener {
             SeparadorLineasCTRL separadorLineasCTRL = new SeparadorLineasCTRL(interfazGui.getTxaTexto());
             List<String> lineas = separadorLineasCTRL.separarLineas();
             //para cada linea usaremos un analizador
+
+            //nuevo analizador
+            AnalizadorAFD analizador = new AnalizadorAFD(interfazGui.getTxaTexto().getText());
+            analizador.analizar();
+            //para cada pareja de tokens y sus tipos dentro del analizador creamos un objeto ToKen
+            for (int i = 0; i < analizador.getTockens().size(); i++) {
+                Token token = Token.builder()
+                        .tocken(analizador.getTockens().get(i))
+                        .tipoToken(analizador.getTipoTockens().get(i).name())
+                        .indice(analizador.getColumnas().get(i))
+                        .fila(analizador.getFilas().get(i))
+                        .build();
+                //agregamos el Token creado a la Lista de Tokens que se agregaran a la tabla.
+                tokenList.add(token);
+            }
+            /*
             for (String s : lineas) {
                 linea++;
                 AnalizadorAFD analizador = new AnalizadorAFD(s);
@@ -61,12 +77,13 @@ public class InterfazCTRL implements ActionListener {
                             .tocken(analizador.getTockens().get(i))
                             .tipoToken(analizador.getTipoTockens().get(i).name())
                             .indice(analizador.getIndices().get(i))
-                            .fila(linea)
+                            .fila(analizador.getFila())
                             .build();
                     //agregamos el Token creado a la Lista de Tokens que se agregaran a la tabla.
                     tokenList.add(token);
+                    System.out.println("prueba");
                 }
-            }
+            }*/
             //Generamos la tabla a partir de la lista de Tokens
             generadorTabla.generar(tokenList);
         } else if (e.getSource() == interfazGui.getBtnLimpiar()) {

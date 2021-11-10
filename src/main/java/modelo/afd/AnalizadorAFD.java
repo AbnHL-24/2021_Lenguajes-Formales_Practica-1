@@ -4,26 +4,24 @@ import lombok.Getter;
 import lombok.Setter;
 import modelo.afd.estados.Estados;
 import modelo.afd.tockens.Tockens;
-import modelo.tokens.TiposDeTokens;
 
 import java.util.ArrayList;
-
-import static modelo.afd.simbolos.Agrupacion.isAgrupacion;
-import static modelo.afd.simbolos.Operador.isOperador;
-import static modelo.afd.simbolos.Puntuacion.isPuntuacion;
 
 @Getter
 @Setter
 public class AnalizadorAFD {
     Estados estado = Estados.S0;
-    int indice = 0;
+    int columna = 0;
+    int fila = 1;
     Tockens tipoTocken = Tockens.NULL;
     String token = "";
     String cadena;
 
     ArrayList<String> tockens = new ArrayList<>();
     ArrayList<Tockens> tipoTockens = new ArrayList<>();
-    ArrayList<Integer> indices = new ArrayList<>();
+    //ArrayList<Integer> indices = new ArrayList<>();
+    ArrayList<Integer> filas = new ArrayList<>();
+    ArrayList<Integer> columnas = new ArrayList<>();
 
     public AnalizadorAFD(String cadenaRecibida) {
         this.cadena = cadenaRecibida;
@@ -32,118 +30,227 @@ public class AnalizadorAFD {
     public void analizar() {
         char[] charsTmp = cadena.toCharArray();
         char[] chars = new char[charsTmp.length + 1];
-        //Agrego un espacio al finalizar para asegurar que el ultimo token sea analizado y agregado a las listas
+        //Agrego un salto de linea al finalizar para asegurar que el ultimo token sea analizado y agregado a las listas
         System.arraycopy(charsTmp, 0, chars, 0, charsTmp.length);
-        chars[charsTmp.length] = ' ';
+        chars[charsTmp.length] = '\n';
 
-        for (char c : chars) {
+        for (Character c : chars) {
             //aunmenta el indice para saber que numero de caracter es
-            indice++;
+            columna++;
                switch (estado) {
                    case S0 -> {
-                       indices.add(indice);
-                       if (Character.isLetter(c)){
+                       //columnas.add(columna);
+                       //filas.add(fila);
+                       if (String.valueOf(c).equals("_")) { // _
                            estado = Estados.S1;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.IDENTIFICADOR;
-                       } else if (Character.isDigit(c)) {
+                       } else if (Character.isLetter(c)) {  // letras
+                           estado = Estados.S1;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.IDENTIFICADOR;
+                       } else if (String.valueOf(c).equals("-")) {  // -
+                           estado = Estados.S3;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.NUMERO;
+                       } else if (Character.isDigit(c)) {   // digitos
                            estado = Estados.S2;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.NUMERO;
-                       } else if (isAgrupacion(c)) {
+                       } else if (String.valueOf(c).equals("\"")) {
                            estado = Estados.S4;
                            token += String.valueOf(c);
-                           tipoTocken = Tockens.AGRUPACION;
-                       } else if (isOperador(c)) {
-                           estado = Estados.S4;
-                           token += String.valueOf(c);
-                           tipoTocken = Tockens.OPERADOR;
-                       } else if (isPuntuacion(c)) {
-                           estado = Estados.S4;
-                           token += String.valueOf(c);
-                           tipoTocken = Tockens.PUNTUACION;
-                       } else if (Character.isSpaceChar(c)) {
+                           tipoTocken = Tockens.LITERAL;
+                       } else if ( c.equals('\n')) {
+                           System.out.println(c);
+                           estado = Estados.S0;
+                           tipoTocken = Tockens.NULL;
+                           fila++;
+                           columna = 0;
+                       }
+                        // y tambien los signos de asignacion
+                       else if (Character.isSpaceChar(c) | Character.isWhitespace(c)) {
                            estado = Estados.S0;
                            tipoTocken = Tockens.NULL;
                        }
                    }
+                   //identificadores
                    case S1 -> {
-                       if (Character.isLetter(c)){
+                       if (Character.isLetter(c)){  // letras
                            estado = Estados.S1;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.IDENTIFICADOR;
-                       } else if (Character.isDigit(c)) {
+                       } else if (String.valueOf(c).equals("_")) {  // _
                            estado = Estados.S1;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.IDENTIFICADOR;
-                       } else if (Character.isSpaceChar(c)) {
+                       } else if (String.valueOf(c).equals("-")) {  // -
+                       estado = Estados.S2;
+                       token += String.valueOf(c);
+                       tipoTocken = Tockens.IDENTIFICADOR;
+                       } else if (Character.isDigit(c)) {   //digitos
+                           estado = Estados.S2;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.IDENTIFICADOR;
+                       } else if ( c.equals('\n')) { // salto de linea
                            estado = Estados.S0;
+                           if (token.equals("ESCRIBIR") | token.equals("FIN") | token.equals("REPETIR") |
+                                   token.equals("INICIAR") | token.equals("SI") | token.equals("VERDADERO") |
+                                   token.equals("FALSO") | token.equals("ENTONCES")) {
+                               tipoTocken = Tockens.PALABRARESERVADA;
+                           }
                            tipoTockens.add(tipoTocken);
                            tipoTocken = Tockens.NULL;
                            tockens.add(token);
                            token = "";
-                       } else {
+                           filas.add(fila);
+                           fila++;
+                           columnas.add(columna);
+                           columna = 0;
+                       } else if (Character.isSpaceChar(c) | Character.isWhitespace(c)) {   // espacio
+                           estado = Estados.S0;
+                           if (token.equals("ESCRIBIR") | token.equals("FIN") | token.equals("REPETIR") |
+                                token.equals("INICIAR") | token.equals("SI") | token.equals("VERDADERO") |
+                                token.equals("FALSO") | token.equals("ENTONCES")) {
+                                tipoTocken = Tockens.PALABRARESERVADA;
+                           }
+                           tipoTockens.add(tipoTocken);
+                           tipoTocken = Tockens.NULL;
+                           tockens.add(token);
+                           token = "";
+                           filas.add(fila);
+                           columnas.add(columna);
+                       } else { // error
                            estado = Estados.ERROR;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.ERROR;
                        }
                    }
+                   //numeros
                    case S2 -> {
-                       if (Character.isDigit(c)) {
+                       if (Character.isDigit(c)) {   //digitos
                            estado = Estados.S2;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.NUMERO;
-                       } else if (".".equals(String.valueOf(c))) {
-                           estado = Estados.S3;
-                           token += String.valueOf(c);
-                           tipoTocken = Tockens.DECIMAL;
-                       } else if (Character.isSpaceChar(c)) {
+                       } else if ( c.equals('\n')) {
                            estado = Estados.S0;
                            tipoTockens.add(tipoTocken);
                            tipoTocken = Tockens.NULL;
                            tockens.add(token);
                            token = "";
-                       } else {
+                           filas.add(fila);
+                           fila++;
+                           columnas.add(columna);
+                           columna = 0;
+                       } else if (Character.isSpaceChar(c) | Character.isWhitespace(c)) {   // espacio
+                           estado = Estados.S0;
+                           tipoTockens.add(tipoTocken);
+                           tipoTocken = Tockens.NULL;
+                           tockens.add(token);
+                           token = "";
+                           filas.add(fila);
+                           columnas.add(columna);
+                       } else { // error
                            estado = Estados.ERROR;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.ERROR;
                        }
                    }
+                   // veridicar que despues del guion venga un numero
                    case S3 -> {
-                       if (Character.isDigit(c)) {
-                           estado = Estados.S3;
+                       if (Character.isDigit(c)) {   //digitos
+                           estado = Estados.S2;
                            token += String.valueOf(c);
-                           tipoTocken = Tockens.DECIMAL;
-                       } else if (Character.isSpaceChar(c)) {
+                           tipoTocken = Tockens.NUMERO;
+                       } else if (c.equals('\n')){
                            estado = Estados.S0;
+                           tipoTocken = Tockens.IDENTIFICADOR;
                            tipoTockens.add(tipoTocken);
                            tipoTocken = Tockens.NULL;
                            tockens.add(token);
                            token = "";
-                       } else {
+                           filas.add(fila);
+                           fila++;
+                           columnas.add(columna);
+                           columna = 0;
+                       } else if (Character.isWhitespace(c)){
+                           estado = Estados.S0;
+                           tipoTocken = Tockens.IDENTIFICADOR;
+                           tipoTockens.add(tipoTocken);
+                           tipoTocken = Tockens.NULL;
+                           tockens.add(token);
+                           token = "";
+                           filas.add(fila);
+                           columnas.add(columna);
+                       } else { // error
                            estado = Estados.ERROR;
                            token += String.valueOf(c);
                            tipoTocken = Tockens.ERROR;
                        }
                    }
+                   // literales
                    case S4 -> {
-                       estado = Estados.S0;
-                       tipoTockens.add(tipoTocken);
-                       tipoTocken = Tockens.NULL;
-                       tockens.add(token);
-                       token = "";
+                       if (String.valueOf(c).equals("\"")){  // captacion comillas
+                           estado = Estados.S0;
+                           token += String.valueOf(c);
+                           tipoTockens.add(tipoTocken);
+                           tipoTocken = Tockens.NULL;
+                           tockens.add(token);
+                           token = "";
+                           filas.add(fila);
+                           fila++;
+                           columnas.add(columna);
+                           columna = 0;
+                       } else if ( c.equals('\n')) {
+                           /*
+                           estado = Estados.ERROR;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.ERROR;
+                            */
+                           tipoTocken = Tockens.ERROR;
+                           estado = Estados.S0;
+                           token += String.valueOf(c);
+                           tipoTockens.add(tipoTocken);
+                           tipoTocken = Tockens.NULL;
+                           tockens.add(token);
+                           token = "";
+                           filas.add(fila);
+                           fila++;
+                           columnas.add(columna);
+                           columna = 0;
+                       } else if (c.equals('\t')) {
+                           estado = Estados.S4;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.LITERAL;
+                       } else { // agrego lo que sea que viene y regresoa  S4
+                           estado = Estados.S4;
+                           token += String.valueOf(c);
+                           tipoTocken = Tockens.LITERAL;
+                       }
                    }
                    case S5 -> {
                        //Es espacio
                        //El VAR dice que aca no ha pasado nada, que se siga jugando.
                    }
                    case ERROR -> {
-                       if (Character.isSpaceChar(c)) {
+                       if (c.equals('\n')) {
                            estado = Estados.S0;
                            tipoTockens.add(tipoTocken);
                            tipoTocken = Tockens.NULL;
                            tockens.add(token);
                            token = "";
+                           filas.add(fila);
+                           fila++;
+                           columnas.add(columna);
+                           columna = 0;
+                       } else if (Character.isSpaceChar(c)) {
+                           estado = Estados.S0;
+                           tipoTockens.add(tipoTocken);
+                           tipoTocken = Tockens.NULL;
+                           tockens.add(token);
+                           token = "";
+                           filas.add(fila);
+                           columnas.add(columna);
                        } else {
                            estado = Estados.ERROR;
                            token += String.valueOf(c);
