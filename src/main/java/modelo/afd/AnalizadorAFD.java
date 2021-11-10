@@ -11,7 +11,7 @@ import java.util.ArrayList;
 @Setter
 public class AnalizadorAFD {
     Estados estado = Estados.S0;
-    int columna = 0;
+    int columna = -1;
     int fila = 1;
     Tockens tipoTocken = Tockens.NULL;
     String token = "";
@@ -65,7 +65,7 @@ public class AnalizadorAFD {
                            estado = Estados.S0;
                            tipoTocken = Tockens.NULL;
                            fila++;
-                           columna = 0;
+                           columna =-1;
                        } else if (c.equals('/')) {
                            estado = Estados.S5;
                            token += String.valueOf(c);
@@ -109,7 +109,7 @@ public class AnalizadorAFD {
                            filas.add(fila);
                            fila++;
                            columnas.add(columna);
-                           columna = 0;
+                           columna = -1;
                        } else if (Character.isSpaceChar(c) | Character.isWhitespace(c)) {   // espacio
                            estado = Estados.S0;
                            if (token.equals("ESCRIBIR") | token.equals("FIN") | token.equals("REPETIR") |
@@ -144,7 +144,7 @@ public class AnalizadorAFD {
                            filas.add(fila);
                            fila++;
                            columnas.add(columna);
-                           columna = 0;
+                           columna = -1;
                        } else if (Character.isSpaceChar(c) | Character.isWhitespace(c)) {   // espacio
                            estado = Estados.S0;
                            tipoTockens.add(tipoTocken);
@@ -175,7 +175,7 @@ public class AnalizadorAFD {
                            filas.add(fila);
                            fila++;
                            columnas.add(columna);
-                           columna = 0;
+                           columna = -1;
                        } else if (Character.isWhitespace(c)){
                            estado = Estados.S0;
                            tipoTocken = Tockens.IDENTIFICADOR;
@@ -203,7 +203,7 @@ public class AnalizadorAFD {
                            filas.add(fila);
                            fila++;
                            columnas.add(columna);
-                           columna = 0;
+                           columna = -1;
                        } else if ( c.equals('\n')) {
                            /*
                            estado = Estados.ERROR;
@@ -220,7 +220,7 @@ public class AnalizadorAFD {
                            filas.add(fila);
                            fila++;
                            columnas.add(columna);
-                           columna = 0;
+                           columna = -1;
                        } else if (c.equals('\t')) {
                            estado = Estados.S4;
                            token += String.valueOf(c);
@@ -254,7 +254,7 @@ public class AnalizadorAFD {
                            filas.add(fila);
                            fila++;
                            columnas.add(columna);
-                           columna = 0;
+                           columna = -1;
                        } else if (c.equals('\t')) {
                            estado = Estados.S6;
                            token += String.valueOf(c);
@@ -275,7 +275,7 @@ public class AnalizadorAFD {
                            filas.add(fila);
                            fila++;
                            columnas.add(columna);
-                           columna = 0;
+                           columna = -1;
                        } else if (Character.isSpaceChar(c)) {
                            estado = Estados.S0;
                            tipoTockens.add(tipoTocken);
